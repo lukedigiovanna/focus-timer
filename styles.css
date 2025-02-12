@@ -1,0 +1,75 @@
+
+
+.noto-sans {
+    font-family: "Noto Sans", serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+    font-variation-settings:
+      "wdth" 100;
+}
+
+.roboto-mono {
+    font-family: "Roboto Mono", serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+}
+
+body {
+    background-color: #29282d;
+}
+
+#timer-text {
+    text-align: center;
+    font-size: 72px;
+    font-weight: bold;
+    color: #eee;
+}
+
+#categories {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.category-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 320px;
+    background-color: #343338;
+    color: #fefefe;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    margin-block: 10px;
+    border-radius: 4px;
+    padding-block: 8px; 
+    border: none;
+    transition: 0.25s ease-in-out;
+}
+
+.category-button:hover {
+    background-color: #49484e;
+}
+
+.category-button:active {
+    background-color: #2b2a2e;
+}
+
+.category-button:disabled {
+    opacity: 0.6;
+}
+
+.category-button > .category-button-icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
+    margin-right: 8px;
+}
+
+.category-button > .category-title {
+    font-size: 18px;
+    overflow-x: hidden;
+}
