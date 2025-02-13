@@ -57,11 +57,51 @@ async function fetchCategories() {
 }
 
 async function fetchAllData() {
-    const response = await client.from("focus_times").select();
-    return response.data;
+    const response = await client
+            .from("focus_times")
+            .select();
+    const data = response.data.map(rawData => {
+        const newData = {...rawData};
+        newData.start_time = new Date(rawData.start_time);
+        if (rawData.end_time) {
+            newData.end_time = new Date(rawData.end_time);
+            newData.duration = (newData.end_time - newData.start_time) / 1000 / 60;
+        }
+        else {
+            newData.duration = null;
+        }
+        return newData;
+    });
+    // Group the data by day
+    const byDay = data.reduce((groups, focusTime) => {
+        const date = focusTime.start_time;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const dateKey = `${year}-${month}-${day}`;
+        if (!groups[dateKey]) {
+            groups[dateKey] = {
+                focusTimes: [],
+                totalFocusTime: 0,
+                totalTimeByCategory: {}
+            };
+        }
+        groups[dateKey].focusTimes.push(focusTime);
+        groups[dateKey].totalFocusTime += focusTime.duration;
+        if (!groups[dateKey].totalTimeByCategory[focusTime.category]) {
+            groups[dateKey].totalTimeByCategory[focusTime.category] = 0;
+        }
+        groups[dateKey].totalTimeByCategory[focusTime.category] += focusTime.duration;
+        return groups
+    }, {});
+    console.log(byDay);
+    console.log(data);
+    return data;
 }
 
-fetchCategories();
+fetchCategories().then(() => {
+    fetchAllData();
+});
 
 function loadCurrentFocusTimeFromLocalStorage() {
     let ft = localStorage.getItem(LS_CURRENT_FOCUS_TIME_KEY);
