@@ -20,22 +20,93 @@ body {
     background-color: #29282d;
 }
 
+#app {
+    margin-top: 80px;
+}
+
 #timer-text {
     text-align: center;
     font-size: 72px;
     font-weight: bold;
     color: #eee;
+    margin: 6px;
+}
+
+#timer-subtext {
+    border: 1px solid blue;
+    border-radius: 5px;
+    width: fit-content;
+    /* display: block; */
+    display: hidden;
+    margin: auto;
+    padding: 6px;
+    padding-inline: 14px;
+    font-weight: bold;
+    color: rgb(197, 197, 197);
+}
+
+#end-timer-button {
+    display: block;
+    margin: auto;
+    margin-block: 20px;
+    width: 70px;
+    height: 70px;
+    border: 2px solid #ff5a64;
+    border-radius: 50%;
+    background: transparent;
+    padding: 4px;
+    cursor: pointer;
+}
+
+#end-timer-inner-circle {
+    background-color: #533336;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.25s ease-in-out;
+    opacity: 100%;
+}
+
+#end-timer-button-icon {
+    border-radius: 3px;;
+    background-color: #ffdedd;
+    width: 40%;
+    height: 40%;
+    transition: 0.25s ease-in-out;
+}
+
+#end-timer-button:hover #end-timer-inner-circle #end-timer-button-icon {
+    background-color: #ccb3b2;
+}
+
+#end-timer-button:active #end-timer-inner-circle {
+    opacity: 0%;
+}
+
+#end-timer-button:disabled {
+    opacity: 50%;
+    cursor: default;
 }
 
 #categories {
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+#categories::-webkit-scrollbar {
+    width: 0px; /* Slim scrollbar width */
 }
 
 .category-button {
     display: flex;
     flex-direction: row;
+    flex-shrink: 0;
     align-items: center;
     width: 320px;
 
@@ -53,16 +124,17 @@ body {
     transition: 0.25s ease-in-out;
 }
 
-.category-button:hover {
+.category-button:not(:disabled):hover {
     background-color: #49484e;
 }
 
-.category-button:active {
+.category-button:not(:disabled):active {
     background-color: #2b2a2e;
 }
 
 .category-button:disabled {
-    opacity: 0.6;
+    opacity: 60%;
+    cursor: default;
 }
 
 .category-button > .category-button-icon {

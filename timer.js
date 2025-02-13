@@ -167,6 +167,9 @@ setInterval(() => {
         if (seconds < 10) timeString += "0";
         timeString += seconds;
         $("#timer-text").text(timeString);
+        $("#timer-subtext").text(currentFocusTime.category.display_name);
+        $("#timer-subtext").css("display", "block");
+        $("#timer-subtext").css("border-color", currentFocusTime.category.color);
     }
     else {
         $(".category-button").attr("disabled", false);
