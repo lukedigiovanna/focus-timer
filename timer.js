@@ -17,9 +17,9 @@ async function fetchCategories() {
             <button class="category-button noto-sans" onclick="startTimer(${category.id})">
                 <div class="category-button-icon" style="background-color: ${category.color}">
                 </div>
-                <div class="category-title">
+                <span class="category-title" title="${category.display_name}">
                     ${category.display_name}
-                </div>
+                </span>
             </button>
             `
         ))   

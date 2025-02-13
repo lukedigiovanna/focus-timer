@@ -38,14 +38,17 @@ body {
     flex-direction: row;
     align-items: center;
     width: 320px;
+
+    overflow: hidden;
+    white-space: nowrap;
+
     background-color: #343338;
     color: #fefefe;
-    text-align: center;
     font-weight: bold;
     cursor: pointer;
     margin-block: 10px;
     border-radius: 4px;
-    padding-block: 8px; 
+    padding: 14px;
     border: none;
     transition: 0.25s ease-in-out;
 }
@@ -67,9 +70,14 @@ body {
     height: 25px;
     border-radius: 4px;
     margin-right: 8px;
+    flex-shrink: 0;
 }
 
 .category-button > .category-title {
+    flex-grow: 1;
     font-size: 18px;
-    overflow-x: hidden;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
 }
