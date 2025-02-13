@@ -175,3 +175,11 @@ setInterval(() => {
         $(".category-button").attr("disabled", false);
     }
 }, 200);
+
+let dataViewId = 1;
+// 1 is daily, 2 is weekly, 3 is monthly
+function selectDataView(id) {
+    $(`#data-view-button-${dataViewId}`).removeClass("selected");
+    $(`#data-view-button-${id}`).addClass("selected");
+    dataViewId = id;
+}

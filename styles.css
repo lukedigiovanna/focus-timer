@@ -90,12 +90,18 @@ body {
     cursor: default;
 }
 
+#categories-container {
+    display: flex;
+    justify-content: center;
+}
+
 #categories {
     display: flex;
     flex-direction: column;
     align-items: center;
     max-height: 250px;
     overflow-y: auto;
+    width: fit-content;
 }
 
 #categories::-webkit-scrollbar {
@@ -151,4 +157,50 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: left;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #494242;
+    margin: 1em 0;
+    padding: 0;
+}
+
+#data {
+    display: flex;
+    justify-content: center;
+}
+
+#time-selection-row {
+    display: flex;
+    flex-direction: row;
+    background-color: #626166;
+    width: fit-content;
+    border-radius: 10px;
+}
+
+#time-selection-row button {
+    border-radius: 10px;
+    border: none;
+    background: none;
+    color: white;
+    font-family: "Noto Sans", serif;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.25s ease-in-out;
+    padding-block: 6px;
+    padding-inline: 20px;
+    width: 8em;
+}
+
+#time-selection-row button.selected {
+    color: black;
+    background-color: white;
+}
+
+#footer {
+    height: 400px;
 }

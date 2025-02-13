@@ -20,9 +20,26 @@
                     <div id="end-timer-button-icon"></div>
                 </div>
             </button>
-            <div id="categories">
-                <!-- populated by JS code -->
+            <div id="categories-container">
+                <div id="categories">
+                    <!-- populated by JS code -->
+                </div>
             </div>
+            <hr />
+            <div id="data">
+                <div id="time-selection-row">
+                    <button id="data-view-button-1" onclick="selectDataView(1)" class="selected">
+                        Daily
+                    </button>
+                    <button id="data-view-button-2" onclick="selectDataView(2)">
+                        Weekly
+                    </button>
+                    <button id="data-view-button-3" onclick="selectDataView(3)">
+                        Monthly
+                    </button>
+                </div>
+            </div>
+            <div id="footer"></div>
         </div>
 
         <!-- Dependencies: jQuery, Google Cloud API -->
