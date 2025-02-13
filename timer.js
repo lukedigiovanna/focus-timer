@@ -68,10 +68,11 @@ function loadCurrentFocusTimeFromLocalStorage() {
     if (ft) {
         ft = JSON.parse(ft);
         ft.start_time = new Date(ft.start_time);
-        console.log("Loaded from localStorage: ", ft);
+        $("#end-timer-button").attr("disabled", false);
         return ft;
     }
     else {
+        $("#end-timer-button").attr("disabled", true);
         return null;
     }
 }
@@ -85,23 +86,29 @@ let currentFocusTime = loadCurrentFocusTimeFromLocalStorage();
 async function startTimer(categoryID) {
     console.log(categoryID);
     timerStartTime = new Date();
-    console.log("Starting: ", timerStartTime.toISOString());
-    const row = await client
+    const response = await client
             .from("focus_times")
             .insert({ start_time: timerStartTime, category: categoryID })
             .select();
-    currentFocusTime = row.data[0];
+    currentFocusTime = response.data[0];
     currentFocusTime.start_time = timerStartTime;
     currentFocusTime.category = categories.get(categoryID);
     localStorage.setItem(LS_CURRENT_FOCUS_TIME_KEY, JSON.stringify(currentFocusTime));
+    $("#end-timer-button").attr("disabled", false);
 }
 
 async function endTimer() {
     // Write the current time to the database for the focus time already initiated
     // Re-enable buttons to start new time
-    
+    const endTime = new Date();
+    const response = await client
+            .from("focus_times")
+            .update({ end_time: endTime })
+            .eq('id', currentFocusTime.id);
+    console.log(response);
     currentFocusTime = null;
     localStorage.removeItem(LS_CURRENT_FOCUS_TIME_KEY);
+    $("#end-timer-button").attr("disabled", true);
 }
 
 setInterval(() => {
