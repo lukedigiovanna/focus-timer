@@ -33,17 +33,40 @@ async function fetchAllData() {
 
 fetchCategories();
 
-let timerStartTime = null;
+// null when not started and after finishing
+// this value should be synced with localStorage at all times to ensure refresh
+// does not affect the timer.
+let currentFocusTime = null;
+// { id: <row id>, category: <category object>, start_time: <date object> }
 
-function startTimer(categoryID) {
+async function startTimer(categoryID) {
     console.log(categoryID);
-    timerStartTime = Date.now();
+    timerStartTime = new Date();
+    console.log("Starting: ", timerStartTime.toISOString());
+    const row = await client
+            .from("focus_times")
+            .insert({ start_time: timerStartTime, category: categoryID })
+            .select();
+    currentFocusTime = row.data[0];
+    // convert the date string back to a date object
+    currentFocusTime.start_time = new Date(currentFocusTime.start_time);
+    console.log(currentFocusTime);
     $(".category-button").attr("disabled", true);
-
 }
 
-function pauseTimer() {
-
+async function pauseTimer() {
+    // Write the current time to the database for the focus time already initiated
+    // Re-enable buttons to start new time
+    $(".category-button").attr("disabled", false);
+    currentFocusTime = null;
 }
 
-
+setInterval(() => {
+    // Update the UI to match the time
+    if (currentFocusTime === null) {
+        $("#timer-text").text("00:00");
+    }
+    else {
+        
+    }
+}, 100);
