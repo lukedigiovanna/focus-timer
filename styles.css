@@ -170,7 +170,8 @@ hr {
 
 #data {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
 
 #time-selection-row {
@@ -199,6 +200,51 @@ hr {
 #time-selection-row button.selected {
     color: black;
     background-color: white;
+}
+
+#chart {
+    margin-block: 20px;
+    border: 1px solid white;
+    border-radius: 10px;
+    width: 450px;
+    color: #eee;
+    font-family: "Noto Sans", serif;
+}
+
+#category-breakdown {
+    width: 450px;
+}
+
+#category-breakdown p {
+    color:#b2b3b7;
+    font-family: "Noto Sans", serif;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.category-data-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid gray;
+    padding-inline: 8px;
+}
+
+.category-data-row .category-data-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.category-data-row p.category-data-title {
+    color: #eee;
+    font-size: 30px;
+}
+
+.category-data-row .category-data-focus-time {
+    font-size: 12px;
 }
 
 #footer {

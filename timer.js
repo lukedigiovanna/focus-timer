@@ -34,6 +34,15 @@ catch (e) {
 }
 
 const categories = new Map(); // map from category ID to category object.
+let focusTimeData;
+
+function getDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateKey = `${year}-${month}-${day}`;
+    return dateKey;
+}
 
 async function fetchCategories() {
     const response = await client.from("categories").select();
@@ -74,11 +83,7 @@ async function fetchAllData() {
     });
     // Group the data by day
     const byDay = data.reduce((groups, focusTime) => {
-        const date = focusTime.start_time;
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const dateKey = `${year}-${month}-${day}`;
+        const dateKey = getDateKey(focusTime.start_time);
         if (!groups[dateKey]) {
             groups[dateKey] = {
                 focusTimes: [],
@@ -96,12 +101,12 @@ async function fetchAllData() {
     }, {});
     console.log(byDay);
     console.log(data);
+    focusTimeData = byDay;
     return data;
 }
 
-fetchCategories().then(() => {
-    fetchAllData();
-});
+fetchCategories();
+fetchAllData();
 
 function loadCurrentFocusTimeFromLocalStorage() {
     let ft = localStorage.getItem(LS_CURRENT_FOCUS_TIME_KEY);
@@ -182,4 +187,43 @@ function selectDataView(id) {
     $(`#data-view-button-${dataViewId}`).removeClass("selected");
     $(`#data-view-button-${id}`).addClass("selected");
     dataViewId = id;
+    // Generate the chart
+
+    const dateKey = getDateKey(new Date());
+    generateCategoryBreakdown(focusTimeData[dateKey]);
+}
+
+// data is an object corresponding category id to focus time data
+function generateCategoryBreakdown(data) {
+    $("#category-data").empty();
+    const keys = Object.keys(data.totalTimeByCategory);
+    for (const key of keys) {
+        const category = categories.get(Number.parseInt(key));
+        const focusTime = data.totalTimeByCategory[key];
+        const hours = Math.floor(focusTime / 60);
+        const minutes = Math.floor(focusTime) % 60;
+        let timeString = "";
+        if (hours > 0) {
+            timeString += hours;
+            timeString += "h ";
+        }
+        timeString += minutes;
+        timeString += "m";
+        $("#category-data").append($(
+            `
+            <div class="category-data-row">
+                <div class="category-data-icon" style="background-color: ${category.color}">
+                </div>
+                <div class="category-data-info">
+                    <p class="category-data-title" title="${category.display_name}">
+                        ${category.display_name}
+                    </p>
+                    <p class="category-data-focus-time">
+                        ${timeString}
+                    </p>
+                </div>
+            </button>
+            `
+        ))   
+    }
 }
