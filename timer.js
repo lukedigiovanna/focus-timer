@@ -2,16 +2,46 @@
 // user for the values. These values will be saved to their localStorage
 // indefinitely.
 
-const SUPABASE_URL = "https://szurhjtdxreycknbfvon.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6dXJoanRkeHJleWNrbmJmdm9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzMzAyNDIsImV4cCI6MjA1NDkwNjI0Mn0.lHZG9vlMdHjdM-j2v6xMvFOloG8mO3YgruIFFuTtwMM";
+const LS_CREDENTIALS_KEY = "focus-timer_credentials";
+const LS_CURRENT_FOCUS_TIME_KEY = "focus-timer_current-focus-time";
 
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Tries to read credentials from localStorage
+function loadCredentials() {
+    let credentials = localStorage.getItem(LS_CREDENTIALS_KEY);
+    if (credentials === null) {
+        // Prompt for the credentials
+        alert("Credentials not found!\nPlease enter them in the following prompts");
+        const url = prompt("Enter SUPABASE_URL:");
+        const anonKey = prompt("Enter SUPABASE_ANON_KEY:");
+        credentials = { url, anonKey };
+        localStorage.setItem(LS_CREDENTIALS_KEY, JSON.stringify(credentials));
+    }
+    else {
+        credentials = JSON.parse(credentials);
+    }
+    return credentials;
+}
+
+const credentials = loadCredentials();
+let client;
+try {
+    client = supabase.createClient(credentials.url, credentials.anonKey);
+}
+catch (e) {
+    localStorage.removeItem(LS_CREDENTIALS_KEY);
+    alert("Failed to load client with credentials. Cleared credentials from localStorage. Refresh and try again.");
+    throw new Error("Failed to load Supabase client");
+}
+
+const categories = new Map(); // map from category ID to category object.
 
 async function fetchCategories() {
     const response = await client.from("categories").select();
     const data = response.data;
     $("#categories").empty();
+    categories.clear();
     for (const category of data) {
+        categories.set(category.id, category);
         $("#categories").append($(
             `
             <button class="category-button noto-sans" onclick="startTimer(${category.id})">
@@ -33,10 +63,23 @@ async function fetchAllData() {
 
 fetchCategories();
 
+function loadCurrentFocusTimeFromLocalStorage() {
+    let ft = localStorage.getItem(LS_CURRENT_FOCUS_TIME_KEY);
+    if (ft) {
+        ft = JSON.parse(ft);
+        ft.start_time = new Date(ft.start_time);
+        console.log("Loaded from localStorage: ", ft);
+        return ft;
+    }
+    else {
+        return null;
+    }
+}
+
 // null when not started and after finishing
 // this value should be synced with localStorage at all times to ensure refresh
 // does not affect the timer.
-let currentFocusTime = null;
+let currentFocusTime = loadCurrentFocusTimeFromLocalStorage();
 // { id: <row id>, category: <category object>, start_time: <date object> }
 
 async function startTimer(categoryID) {
@@ -48,25 +91,37 @@ async function startTimer(categoryID) {
             .insert({ start_time: timerStartTime, category: categoryID })
             .select();
     currentFocusTime = row.data[0];
-    // convert the date string back to a date object
-    currentFocusTime.start_time = new Date(currentFocusTime.start_time);
-    console.log(currentFocusTime);
-    $(".category-button").attr("disabled", true);
+    currentFocusTime.start_time = timerStartTime;
+    currentFocusTime.category = categories.get(categoryID);
+    localStorage.setItem(LS_CURRENT_FOCUS_TIME_KEY, JSON.stringify(currentFocusTime));
 }
 
-async function pauseTimer() {
+async function endTimer() {
     // Write the current time to the database for the focus time already initiated
     // Re-enable buttons to start new time
-    $(".category-button").attr("disabled", false);
+    
     currentFocusTime = null;
+    localStorage.removeItem(LS_CURRENT_FOCUS_TIME_KEY);
 }
 
 setInterval(() => {
     // Update the UI to match the time
-    if (currentFocusTime === null) {
-        $("#timer-text").text("00:00");
+    if (currentFocusTime) {
+        $(".category-button").attr("disabled", true);
+        // Compute the elapsed time
+        const elapsed = Math.floor((new Date() - currentFocusTime.start_time) / 1000);
+        // convert to MM:SS format
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        let timeString = "";
+        if (minutes < 10) timeString += "0";
+        timeString += minutes;
+        timeString += ":";
+        if (seconds < 10) timeString += "0";
+        timeString += seconds;
+        $("#timer-text").text(timeString);
     }
     else {
-        
+        $(".category-button").attr("disabled", false);
     }
-}, 100);
+}, 200);
