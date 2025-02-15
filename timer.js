@@ -221,8 +221,18 @@ function selectDataView(id) {
     $(`#data-view-button-${id}`).addClass("selected");
     dataViewId = id;
     // Generate the chart
-    const dateKey = getDateKey(new Date());
-    generateCategoryBreakdown(focusTimeData.daily[dateKey]);
+    if (dataViewId === 1) {
+        const dateKey = getDateKey(new Date());
+        generateCategoryBreakdown(focusTimeData.daily[dateKey]);
+    }
+    else if (dataViewId === 2) {
+        const weekKey = getWeekKey(new Date());
+        generateCategoryBreakdown(focusTimeData.weekly[weekKey]);
+    }
+    else if (dataViewId === 3) {
+        const monthKey = getMonthKey(new Date());
+        generateCategoryBreakdown(focusTimeData.monthly[monthKey]);
+    }
 }
 
 // data is an object corresponding category id to focus time data
