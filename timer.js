@@ -44,6 +44,17 @@ function getDateKey(date) {
     return dateKey;
 }
 
+function getWeekKey(date) {
+
+}
+
+function getMonthKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const monthKey = `${year}-${month}`;
+    return monthKey;
+}
+
 async function fetchCategories() {
     const response = await client.from("categories").select();
     const data = response.data;
@@ -74,39 +85,61 @@ async function fetchAllData() {
         newData.start_time = new Date(rawData.start_time);
         if (rawData.end_time) {
             newData.end_time = new Date(rawData.end_time);
-            newData.duration = (newData.end_time - newData.start_time) / 1000 / 60;
         }
         else {
-            newData.duration = null;
+            newData.end_time = new Date(); // Use now
         }
+        newData.duration = (newData.end_time - newData.start_time) / 1000 / 60;
         return newData;
     });
     // Group the data by day
-    const byDay = data.reduce((groups, focusTime) => {
+    const summary = data.reduce((groups, focusTime) => {
         const dateKey = getDateKey(focusTime.start_time);
-        if (!groups[dateKey]) {
-            groups[dateKey] = {
+        // const weekKey = getWeekKey(focusTime.start_time);
+        const monthKey = getMonthKey(focusTime.start_time);
+
+        // Add to daily summary
+        if (!groups.daily[dateKey]) {
+            groups.daily[dateKey] = {
                 focusTimes: [],
                 totalFocusTime: 0,
                 totalTimeByCategory: {}
             };
         }
-        groups[dateKey].focusTimes.push(focusTime);
-        groups[dateKey].totalFocusTime += focusTime.duration;
-        if (!groups[dateKey].totalTimeByCategory[focusTime.category]) {
-            groups[dateKey].totalTimeByCategory[focusTime.category] = 0;
+        groups.daily[dateKey].focusTimes.push(focusTime);
+        groups.daily[dateKey].totalFocusTime += focusTime.duration;
+        if (!groups.daily[dateKey].totalTimeByCategory[focusTime.category]) {
+            groups.daily[dateKey].totalTimeByCategory[focusTime.category] = 0;
         }
-        groups[dateKey].totalTimeByCategory[focusTime.category] += focusTime.duration;
-        return groups
-    }, {});
-    console.log(byDay);
-    console.log(data);
-    focusTimeData = byDay;
-    return data;
+        groups.daily[dateKey].totalTimeByCategory[focusTime.category] += focusTime.duration;
+
+        // Add to weekly summary
+
+        // Add to monthly summary
+        if (!groups.monthly[monthKey]) {
+            groups.monthly[monthKey] = {
+                totalFocusTime: 0,
+                totalTimeByCategory: {}
+            };
+        }
+        groups.monthly[monthKey].totalFocusTime += focusTime.duration;
+        if (!groups.monthly[monthKey].totalTimeByCategory[focusTime.category]) {
+            groups.monthly[monthKey].totalTimeByCategory[focusTime.category] = 0;
+        }
+        groups.monthly[monthKey].totalTimeByCategory[focusTime.category] += focusTime.duration;
+
+        return groups;
+    }, {daily: {}, weekly: {}, monthly: {}});
+    console.log(summary);
+    return summary;
 }
 
-fetchCategories();
-fetchAllData();
+fetchCategories().then(() => {
+    fetchAllData().then(data => {
+        focusTimeData = data;
+        selectDataView(1); // Load daily for the current day.
+    });
+});
 
 function loadCurrentFocusTimeFromLocalStorage() {
     let ft = localStorage.getItem(LS_CURRENT_FOCUS_TIME_KEY);
@@ -188,9 +221,8 @@ function selectDataView(id) {
     $(`#data-view-button-${id}`).addClass("selected");
     dataViewId = id;
     // Generate the chart
-
     const dateKey = getDateKey(new Date());
-    generateCategoryBreakdown(focusTimeData[dateKey]);
+    generateCategoryBreakdown(focusTimeData.daily[dateKey]);
 }
 
 // data is an object corresponding category id to focus time data
