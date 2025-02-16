@@ -238,9 +238,11 @@ function selectDataView(id) {
 // data is an object corresponding category id to focus time data
 function generateCategoryBreakdown(data) {
     $("#category-data").empty();
-    const keys = Object.keys(data.totalTimeByCategory);
+    const keys = Object.keys(data.totalTimeByCategory).map(v => Number.parseInt(v));
+    // Sort keys by duration
+    keys.sort((a, b) => data.totalTimeByCategory[b] - data.totalTimeByCategory[a]);
     for (const key of keys) {
-        const category = categories.get(Number.parseInt(key));
+        const category = categories.get(key);
         const focusTime = data.totalTimeByCategory[key];
         const hours = Math.floor(focusTime / 60);
         const minutes = Math.floor(focusTime) % 60;
