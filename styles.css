@@ -259,23 +259,27 @@ hr {
     align-items: center;
     border-bottom: 1px solid gray;
     padding-inline: 8px;
+    padding-block: 15px;
 }
 
 .category-data-row .category-data-icon {
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
     border-radius: 4px;
     margin-right: 8px;
     flex-shrink: 0;
 }
 
-.category-data-row p.category-data-title {
-    color: #eee;
-    font-size: 30px;
+.category-data-row .category-data-title {
+    color: #d4d4d4 !important;
+    font-size: 17px !important;    
+    margin: 0;
 }
 
 .category-data-row .category-data-focus-time {
-    font-size: 12px;
+    font-size: 14px !important;
+    font-weight: normal !important;
+    margin: 0;
 }
 
 #footer {
