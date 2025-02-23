@@ -315,11 +315,13 @@ function generateChart() {
         times.push(focusTime);
         maxTime = Math.max(maxTime, focusTime);
     }
-    let topTime;
-    if (maxTime < 15) topTime = 15;
-    else if (maxTime < 30) topTime = 30;
-    else topTime = Math.ceil(maxTime / 60) * 60;
-    let midTime = Math.floor(topTime / 120) * 60;
+    let topTime, midTime;
+    if (maxTime < 15) { topTime = 15; midTime = 7; }
+    else if (maxTime < 30) { topTime = 30; midTime = 15; }
+    else {
+        topTime = Math.ceil(maxTime / 60) * 60;
+        midTime = Math.floor(topTime / 120) * 60;
+    }
     $("#chart-background #top-time").text(getTimeString(topTime));
     $("#chart-background #mid-time").text(getTimeString(midTime));
     $("#chart-foreground .bar").each((index, element) => {
