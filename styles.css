@@ -351,6 +351,29 @@ hr {
     width: 450px;
 }
 
+@media (max-width: 500px) {
+    #chart {
+        width: 90vw;
+    }
+
+    #category-breakdown {
+        width: 90vw;
+    }
+
+    #chart-foreground > #spacer {
+        width: 30px;
+    }
+
+    .chart-h-line p {
+        width: 30px;
+    }
+    
+    #chart-foreground .bar-column {
+        width: 30px;
+        margin-inline: 8px;
+    }
+}
+
 #category-breakdown p {
     color:#b2b3b7;
     font-family: "Noto Sans", serif;
