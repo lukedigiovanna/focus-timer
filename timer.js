@@ -343,7 +343,7 @@ function generateChart() {
     $("#chart-background #mid-time").text(getTimeString(midTime));
     const dataDateKey = getKey[dataViewKey](dataDate);
     $("#chart-foreground .bar").each((index, element) => {
-        const h = times[index] / topTime * 180;
+        const h = times[index] / topTime * 160;
         element.style.height = `${h}px`;
         element.style.transform = `translateY(${180-h}px)`;
         const dateKey = getKey[dataViewKey](dates[index]);
