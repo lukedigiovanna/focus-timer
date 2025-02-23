@@ -10,9 +10,9 @@ function loadCredentials() {
     let credentials = localStorage.getItem(LS_CREDENTIALS_KEY);
     if (credentials === null) {
         // Prompt for the credentials
-        alert("Credentials not found!\nPlease enter them in the following prompts");
-        const url = prompt("Enter SUPABASE_URL:");
-        const anonKey = prompt("Enter SUPABASE_ANON_KEY:");
+        const key = prompt("Credentials not found!\nPlease enter your encoded DB credentials");
+        const decoded = atob(key);
+        const [url, anonKey] = decoded.split(";");
         credentials = { url, anonKey };
         localStorage.setItem(LS_CREDENTIALS_KEY, JSON.stringify(credentials));
     }
