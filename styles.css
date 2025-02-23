@@ -253,6 +253,16 @@ hr {
     font-size: 14px;
 }
 
+#category-breakdown > p {
+    margin-bottom: 4px;
+}
+
+#category-data > #total {
+    margin: 0;
+    margin-left: 8px;
+    color: #ccc;
+}
+
 .category-data-row {
     display: flex;
     flex-direction: row;

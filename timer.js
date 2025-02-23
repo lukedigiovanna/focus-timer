@@ -55,6 +55,21 @@ function getMonthKey(date) {
     return monthKey;
 }
 
+function getTimeString(time) {
+    const hours = Math.floor(time / 60);
+    const minutes = Math.floor(time) % 60;
+    let timeString = "";
+    if (hours > 0) {
+        timeString += hours;
+        timeString += "h ";
+    }
+    if (minutes > 0) {
+        timeString += minutes;
+        timeString += "m";
+    }
+    return timeString;
+}
+
 async function fetchCategories() {
     const response = await client.from("categories").select();
     const data = response.data;
@@ -238,21 +253,18 @@ function selectDataView(id) {
 // data is an object corresponding category id to focus time data
 function generateCategoryBreakdown(data) {
     $("#category-data").empty();
+    $("#category-data").append($(
+        `
+        <p id="total">Total: ${getTimeString(data.totalFocusTime)}</p>
+        `
+    ));
     const keys = Object.keys(data.totalTimeByCategory).map(v => Number.parseInt(v));
     // Sort keys by duration
     keys.sort((a, b) => data.totalTimeByCategory[b] - data.totalTimeByCategory[a]);
     for (const key of keys) {
         const category = categories.get(key);
         const focusTime = data.totalTimeByCategory[key];
-        const hours = Math.floor(focusTime / 60);
-        const minutes = Math.floor(focusTime) % 60;
-        let timeString = "";
-        if (hours > 0) {
-            timeString += hours;
-            timeString += "h ";
-        }
-        timeString += minutes;
-        timeString += "m";
+        const timeString = getTimeString(focusTime);
         $("#category-data").append($(
             `
             <div class="category-data-row">
