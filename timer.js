@@ -255,18 +255,26 @@ function generateDataDisplay() {
     generateCategoryBreakdown();
 }
 
-function moveChartBack() {
-
-}
-
-function moveChartForeward() {
-
-}
-
 const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
 const MILLISECONDS_PER_WEEK = MILLISECONDS_PER_DAY * 7;
 const DAY_ABBREVIATIONS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_ABBREVIATIONS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function moveChart(delta) {
+    switch (dataViewKey) {
+    case "daily": // Move chart date 1 week
+        chartDate = new Date(chartDate.getTime() + delta * MILLISECONDS_PER_WEEK);
+        break;
+    case "weekly": // Move chart date by 7 weeks
+        chartDate = new Date(chartDate.getTime() + delta * MILLISECONDS_PER_WEEK * 7);
+        break;
+    case "monthly": // Move chart date by 7 months
+        chartDate = new Date(chartDate.getTime());
+        chartDate.setMonth(chartDate.getMonth() + delta * 7);
+        break;
+    }
+    generateChart();
+}
 
 // Generate the chart for the type of group given the given date
 function generateChart() {
