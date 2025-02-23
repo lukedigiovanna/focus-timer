@@ -45,7 +45,10 @@ function getDateKey(date) {
 }
 
 function getWeekKey(date) {
-
+    // Round date down to nearest Sunday
+    const copy = new Date(date.getTime());
+    copy.setDate(copy.getDate() - copy.getDay());
+    return getDateKey(copy);
 }
 
 function getMonthKey(date) {
@@ -109,39 +112,35 @@ async function fetchAllData() {
     });
     // Group the data by day
     const summary = data.reduce((groups, focusTime) => {
+        const addData = (groupKey, dateKey, addIndividualTimes=false) => {
+            const group = groups[groupKey];
+            if (!group[dateKey]) {
+                group[dateKey] = {
+                    totalFocusTime: 0,
+                    totalTimeByCategory: {}
+                };
+                if (addIndividualTimes) {
+                    group[dateKey].focusTimes = [];
+                }
+            }
+            const groupData = group[dateKey];
+            if (addIndividualTimes) {
+                groupData.focusTimes.push(focusTime);
+            }
+            groupData.totalFocusTime += focusTime.duration;
+            if (!groupData.totalTimeByCategory[focusTime.category]) {
+                groupData.totalTimeByCategory[focusTime.category] = 0;
+            }
+            groupData.totalTimeByCategory[focusTime.category] += focusTime.duration;
+        }
+
         const dateKey = getDateKey(focusTime.start_time);
-        // const weekKey = getWeekKey(focusTime.start_time);
+        const weekKey = getWeekKey(focusTime.start_time);
         const monthKey = getMonthKey(focusTime.start_time);
 
-        // Add to daily summary
-        if (!groups.daily[dateKey]) {
-            groups.daily[dateKey] = {
-                focusTimes: [],
-                totalFocusTime: 0,
-                totalTimeByCategory: {}
-            };
-        }
-        groups.daily[dateKey].focusTimes.push(focusTime);
-        groups.daily[dateKey].totalFocusTime += focusTime.duration;
-        if (!groups.daily[dateKey].totalTimeByCategory[focusTime.category]) {
-            groups.daily[dateKey].totalTimeByCategory[focusTime.category] = 0;
-        }
-        groups.daily[dateKey].totalTimeByCategory[focusTime.category] += focusTime.duration;
-
-        // Add to weekly summary
-
-        // Add to monthly summary
-        if (!groups.monthly[monthKey]) {
-            groups.monthly[monthKey] = {
-                totalFocusTime: 0,
-                totalTimeByCategory: {}
-            };
-        }
-        groups.monthly[monthKey].totalFocusTime += focusTime.duration;
-        if (!groups.monthly[monthKey].totalTimeByCategory[focusTime.category]) {
-            groups.monthly[monthKey].totalTimeByCategory[focusTime.category] = 0;
-        }
-        groups.monthly[monthKey].totalTimeByCategory[focusTime.category] += focusTime.duration;
+        addData("daily", dateKey, true);
+        addData("weekly", weekKey);
+        addData("monthly", monthKey);
 
         return groups;
     }, {daily: {}, weekly: {}, monthly: {}});
