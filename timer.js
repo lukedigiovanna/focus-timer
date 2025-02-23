@@ -76,7 +76,7 @@ function getTimeString(time) {
         timeString += hours;
         timeString += "h ";
     }
-    if (minutes > 0) {
+    if (hours === 0 || minutes > 0) {
         timeString += minutes;
         timeString += "m";
     }
@@ -324,12 +324,23 @@ function generateChart() {
     }
     $("#chart-background #top-time").text(getTimeString(topTime));
     $("#chart-background #mid-time").text(getTimeString(midTime));
+    const dataDateKey = getKey[dataViewKey](dataDate);
     $("#chart-foreground .bar").each((index, element) => {
         const h = times[index] / topTime * 180;
         element.style.height = `${h}px`;
         element.style.transform = `translateY(${180-h}px)`;
+        const dateKey = getKey[dataViewKey](dates[index]);
+        if (dateKey === dataDateKey) {
+            element.style.backgroundColor = "#ff5c5d";
+        }
+        else {
+            element.style.backgroundColor = "#6a393c";
+        }
+    });
+    $("#chart-foreground .bar-column").each((index, element) => {
         element.onclick = () => {
-            console.log(index);
+            dataDate = dates[index];
+            generateDataDisplay();
         }
     });
     $("#chart-foreground > .bar-column p").each((index, element) => {
@@ -352,8 +363,13 @@ function generateChart() {
 
 // data is an object corresponding category id to focus time data
 function generateCategoryBreakdown() {
-    const data = focusTimeData[dataViewKey][getKey[dataViewKey](dataDate)];
-
+    let data = focusTimeData[dataViewKey][getKey[dataViewKey](dataDate)];
+    if (!data) {
+        data = {
+            totalTimeByCategory: {},
+            totalFocusTime: 0
+        };
+    }
     $("#category-data").empty();
     $("#category-data").append($(
         `

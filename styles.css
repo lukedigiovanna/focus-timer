@@ -336,7 +336,7 @@ hr {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     transform: translateY(0px);
-    height: 180px;
+    height: 0px;
 }
 
 #chart-foreground .bar-column > p {
