@@ -36,6 +36,12 @@ catch (e) {
 const categories = new Map(); // map from category ID to category object.
 let focusTimeData;
 
+function getPreviousSunday(date) {
+    const copy = new Date(date.getTime());
+    copy.setDate(copy.getDate() - copy.getDay());
+    return copy;
+}
+
 function getDateKey(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -46,9 +52,7 @@ function getDateKey(date) {
 
 function getWeekKey(date) {
     // Round date down to nearest Sunday
-    const copy = new Date(date.getTime());
-    copy.setDate(copy.getDate() - copy.getDay());
-    return getDateKey(copy);
+    return getDateKey(getPreviousSunday(date));
 }
 
 function getMonthKey(date) {
@@ -57,6 +61,12 @@ function getMonthKey(date) {
     const monthKey = `${year}-${month}`;
     return monthKey;
 }
+
+const getKey = {
+    "daily": getDateKey,
+    "weekly": getWeekKey,
+    "monthly": getMonthKey,
+};
 
 function getTimeString(time) {
     const hours = Math.floor(time / 60);
@@ -151,7 +161,7 @@ async function fetchAllData() {
 fetchCategories().then(() => {
     fetchAllData().then(data => {
         focusTimeData = data;
-        selectDataView(1); // Load daily for the current day.
+        selectDataView("daily");
     });
 });
 
@@ -228,45 +238,92 @@ setInterval(() => {
     }
 }, 200);
 
-let dataViewId = 1;
-// 1 is daily, 2 is weekly, 3 is monthly
-function selectDataView(id) {
-    $(`#data-view-button-${dataViewId}`).removeClass("selected");
-    $(`#data-view-button-${id}`).addClass("selected");
-    dataViewId = id;
-    // Generate the chart
-    if (dataViewId === 1) {
-        const dateKey = getDateKey(new Date());
-        generateChart();
-        generateCategoryBreakdown(focusTimeData.daily[dateKey]);
-    }
-    else if (dataViewId === 2) {
-        const weekKey = getWeekKey(new Date());
-        generateCategoryBreakdown(focusTimeData.weekly[weekKey]);
-    }
-    else if (dataViewId === 3) {
-        const monthKey = getMonthKey(new Date());
-        generateCategoryBreakdown(focusTimeData.monthly[monthKey]);
-    }
+let dataViewKey = "daily";
+let chartDate = new Date(); // Controls the offset of the chart view
+let dataDate = new Date(); // Controls what data is viewed in the category breakdown
+function selectDataView(key) {
+    $(`#data-view-button-${dataViewKey}`).removeClass("selected");
+    $(`#data-view-button-${key}`).addClass("selected");
+    dataViewKey = key;
+    chartDate = new Date();
+    dataDate = new Date();
+    generateDataDisplay();
 }
 
-function generateChart(group) {
+function generateDataDisplay() {
+    generateChart();
+    generateCategoryBreakdown();
+}
+
+function moveChartBack() {
+
+}
+
+function moveChartForeward() {
+
+}
+
+const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+const MILLISECONDS_PER_WEEK = MILLISECONDS_PER_DAY * 7;
+const DAY_ABBREVIATIONS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTH_ABBREVIATIONS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// Generate the chart for the type of group given the given date
+function generateChart() {
+    let start;
+    switch (dataViewKey) {
+    case "daily": // Go to last sunday
+        start = getPreviousSunday(chartDate);
+        break;
+    case "weekly": // Go seven weeks back
+        start = new Date(chartDate.getTime() - 6 * MILLISECONDS_PER_WEEK);
+        break;
+    case "monthly": // Go seven months back
+        start = new Date(chartDate.getTime());
+        start.setMonth(start.getMonth() - 6);
+        break;
+    }
     $("#chart-foreground .bar").each((index, element) => {
-        console.log(element);
         const h = Math.random() * 180;
         element.style.height = `${h}px`;
         element.style.transform = `translateY(${180-h}px)`;
+        element.onclick = () => {
+            console.log(index);
+        }
+    });
+    $("#chart-foreground > .bar-column p").each((index, element) => {
+        let date;
+        switch (dataViewKey) {
+        case "daily":
+            date = new Date(start.getTime() + index * MILLISECONDS_PER_DAY);
+            element.innerText = `${DAY_ABBREVIATIONS[date.getDay()]} ${String(date.getDate()).padStart(2, '0')}`;
+            break;
+        case "weekly":
+            date = new Date(start.getTime() + index * MILLISECONDS_PER_WEEK);
+            const endDate = new Date(date.getTime());
+            endDate.setDate(endDate.getDate() + 6);
+            element.innerText = `${date.getMonth() + 1}/${date.getDate()}-${endDate.getMonth() + 1}/${endDate.getDate()}`;
+            break;
+        case "monthly":
+            date = new Date(start.getTime());
+            date.setMonth(date.getMonth() + index);
+            element.innerText = `${MONTH_ABBREVIATIONS[date.getMonth()]} ${String(date.getFullYear()).substring(2)}`;
+            break;
+        }
     });
 }
 
 // data is an object corresponding category id to focus time data
-function generateCategoryBreakdown(data) {
+function generateCategoryBreakdown() {
+    const data = focusTimeData[dataViewKey][getKey[dataViewKey](dataDate)];
+
     $("#category-data").empty();
     $("#category-data").append($(
         `
         <p id="total">Total: ${getTimeString(data.totalFocusTime)}</p>
         `
     ));
+
     const keys = Object.keys(data.totalTimeByCategory).map(v => Number.parseInt(v));
     // Sort keys by duration
     keys.sort((a, b) => data.totalTimeByCategory[b] - data.totalTimeByCategory[a]);

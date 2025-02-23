@@ -29,16 +29,22 @@
             <hr />
             <div id="data">
                 <div id="time-selection-row">
-                    <button id="data-view-button-1" onclick="selectDataView(1)" class="selected">
+                    <button id="data-view-button-daily" onclick="selectDataView('daily')" class="selected">
                         Daily
                     </button>
-                    <button id="data-view-button-2" onclick="selectDataView(2)">
+                    <button id="data-view-button-weekly" onclick="selectDataView('weekly')">
                         Weekly
                     </button>
-                    <button id="data-view-button-3" onclick="selectDataView(3)">
+                    <button id="data-view-button-monthly" onclick="selectDataView('monthly')">
                         Monthly
                     </button>
                 </div>
+                <button onclick="moveChartBack()">
+                    Back
+                </button>
+                <button onclick="moveChartForeward()">
+                    Foreward
+                </button>
                 <div id="chart">
                     <div id="chart-background">
                         <div class="chart-h-line">
