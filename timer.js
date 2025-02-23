@@ -237,6 +237,7 @@ function selectDataView(id) {
     // Generate the chart
     if (dataViewId === 1) {
         const dateKey = getDateKey(new Date());
+        generateChart();
         generateCategoryBreakdown(focusTimeData.daily[dateKey]);
     }
     else if (dataViewId === 2) {
@@ -247,6 +248,15 @@ function selectDataView(id) {
         const monthKey = getMonthKey(new Date());
         generateCategoryBreakdown(focusTimeData.monthly[monthKey]);
     }
+}
+
+function generateChart(group) {
+    $("#chart-foreground .bar").each((index, element) => {
+        console.log(element);
+        const h = Math.random() * 180;
+        element.style.height = `${h}px`;
+        element.style.transform = `translateY(${180-h}px)`;
+    });
 }
 
 // data is an object corresponding category id to focus time data
