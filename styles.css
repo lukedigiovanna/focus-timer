@@ -252,6 +252,23 @@ hr {
     background-color: white;
 }
 
+#chart-move-buttons {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+}
+
+#chart-move-buttons button {
+    cursor: pointer;
+    margin-inline: 44px;
+    background: none;
+    color: white;
+    font-weight: bold;
+    font-family: "Noto Sans", serif;
+    border: none;
+    font-size: 22px;
+}
+
 #chart {
     margin-block: 20px;
     border-radius: 10px;
