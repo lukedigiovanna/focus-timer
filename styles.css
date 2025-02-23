@@ -270,7 +270,8 @@ hr {
 }
 
 #chart {
-    margin-block: 20px;
+    margin-top: 5px;
+    margin-bottom: 20px;
     border-radius: 10px;
     width: 450px;
     color: #eee;

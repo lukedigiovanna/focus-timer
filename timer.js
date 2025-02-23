@@ -276,6 +276,23 @@ function moveChart(delta) {
     generateChart();
 }
 
+let lastTouchX;
+$("#chart").on("touchstart", e => {
+    lastTouchX = e.touches[0].clientX;
+});
+$("#chart").on("touchend", e => {
+    const nowX = e.changedTouches[0].clientX;
+    const diff = Math.abs(nowX - lastTouchX);
+    if (diff > 20) {
+        if (nowX > lastTouchX) {
+            moveChart(-1);
+        }
+        else {
+            moveChart(1);
+        }
+    }
+});
+
 // Generate the chart for the type of group given the given date
 function generateChart() {
     let start;
