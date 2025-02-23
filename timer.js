@@ -291,8 +291,39 @@ function generateChart() {
         start.setMonth(start.getMonth() - 6);
         break;
     }
+    const dates = [];
+    const times = [];
+    let maxTime = 0;
+    for (let i = 0; i < 7; i++) {
+        let date;
+        switch (dataViewKey) {
+        case "daily":
+            date = new Date(start.getTime() + i * MILLISECONDS_PER_DAY);
+            break;
+        case "weekly":
+            date = new Date(start.getTime() + i * MILLISECONDS_PER_WEEK);
+            break;
+        case "monthly":
+            date = new Date(start.getTime());
+            date.setMonth(date.getMonth() + i);
+            break;
+        }
+        dates.push(date);
+        const dateKey = getKey[dataViewKey](date);
+        const focusTimeSummary = focusTimeData[dataViewKey][dateKey];
+        const focusTime = focusTimeSummary ? focusTimeSummary.totalFocusTime : 0;
+        times.push(focusTime);
+        maxTime = Math.max(maxTime, focusTime);
+    }
+    let topTime;
+    if (maxTime < 15) topTime = 15;
+    else if (maxTime < 30) topTime = 30;
+    else topTime = Math.ceil(maxTime / 60) * 60;
+    let midTime = Math.floor(topTime / 120) * 60;
+    $("#chart-background #top-time").text(getTimeString(topTime));
+    $("#chart-background #mid-time").text(getTimeString(midTime));
     $("#chart-foreground .bar").each((index, element) => {
-        const h = Math.random() * 180;
+        const h = times[index] / topTime * 180;
         element.style.height = `${h}px`;
         element.style.transform = `translateY(${180-h}px)`;
         element.onclick = () => {
@@ -300,21 +331,17 @@ function generateChart() {
         }
     });
     $("#chart-foreground > .bar-column p").each((index, element) => {
-        let date;
+        const date = dates[index];
         switch (dataViewKey) {
         case "daily":
-            date = new Date(start.getTime() + index * MILLISECONDS_PER_DAY);
             element.innerText = `${DAY_ABBREVIATIONS[date.getDay()]} ${String(date.getDate()).padStart(2, '0')}`;
             break;
         case "weekly":
-            date = new Date(start.getTime() + index * MILLISECONDS_PER_WEEK);
             const endDate = new Date(date.getTime());
             endDate.setDate(endDate.getDate() + 6);
             element.innerText = `${date.getMonth() + 1}/${date.getDate()}-${endDate.getMonth() + 1}/${endDate.getDate()}`;
             break;
         case "monthly":
-            date = new Date(start.getTime());
-            date.setMonth(date.getMonth() + index);
             element.innerText = `${MONTH_ABBREVIATIONS[date.getMonth()]} ${String(date.getFullYear()).substring(2)}`;
             break;
         }
