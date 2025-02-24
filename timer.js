@@ -436,6 +436,7 @@ function generateTimeline() {
     if (!data) {
         return;
     }
+    let minimumLeft = 0;
     const offX = 27;
     const gapPerHour = 116;
     data.focusTimes.forEach((focusTime, index) => {
@@ -444,11 +445,15 @@ function generateTimeline() {
         const startTimeHours = startTime.getHours() + startTime.getMinutes() / 60;
         const timeString = `${getTimeOfDayString(startTime)} to ${getTimeOfDayString(focusTime.end_time)}`;
         const width = Math.max(10, focusTime.duration / 60 * gapPerHour);
+        const offset = offX + gapPerHour * startTimeHours;
+        if (minimumLeft === 0 || offset < minimumLeft) {
+            minimumLeft = offset;
+        }
         $("#timeline #foreground").append($(
             `
                 <div class="timeline-segment" 
                      title="${category.display_name} ${timeString}" 
-                     style="background-color: ${category.color}; width: ${width}px; transform: translateX(${offX + gapPerHour * startTimeHours}px);">
+                     style="background-color: ${category.color}; width: ${width}px; transform: translateX(${offset}px);">
                     <p class="title">
                         ${category.display_name}
                     </p>
@@ -459,4 +464,6 @@ function generateTimeline() {
             `
         ))
     });
+    minimumLeft = Math.max(0, minimumLeft - 100);
+    $("#timeline-row").scrollLeft(minimumLeft);
 }
