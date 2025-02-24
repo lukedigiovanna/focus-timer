@@ -83,6 +83,10 @@ function getTimeString(time) {
     return timeString;
 }
 
+function getTimeOfDayString(date) {
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
 async function fetchCategories() {
     const response = await client.from("categories").select();
     const data = response.data;
@@ -253,6 +257,7 @@ function selectDataView(key) {
 function generateDataDisplay() {
     generateChart();
     generateCategoryBreakdown();
+    generateTimeline();
 }
 
 const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -418,4 +423,40 @@ function generateCategoryBreakdown() {
             `
         ))   
     }
+}
+
+function generateTimeline() {
+    if (dataViewKey !== "daily") {
+        $("#timeline").hide();
+        return;
+    }
+    $("#timeline").show();
+    $("#timeline #foreground").empty();
+    let data = focusTimeData["daily"][getKey[dataViewKey](dataDate)];
+    if (!data) {
+        return;
+    }
+    const offX = 27;
+    const gapPerHour = 116;
+    data.focusTimes.forEach((focusTime, index) => {
+        const category = categories.get(focusTime.category);
+        const startTime = focusTime.start_time;
+        const startTimeHours = startTime.getHours() + startTime.getMinutes() / 60;
+        const timeString = `${getTimeOfDayString(startTime)} to ${getTimeOfDayString(focusTime.end_time)}`;
+        const width = Math.max(10, focusTime.duration / 60 * gapPerHour);
+        $("#timeline #foreground").append($(
+            `
+                <div class="timeline-segment" 
+                     title="${category.display_name} ${timeString}" 
+                     style="background-color: ${category.color}; width: ${width}px; transform: translateX(${offX + gapPerHour * startTimeHours}px);">
+                    <p class="title">
+                        ${category.display_name}
+                    </p>
+                    <p class="time">
+                        ${timeString}
+                    </p>
+                </div>
+            `
+        ))
+    });
 }
