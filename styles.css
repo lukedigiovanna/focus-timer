@@ -271,7 +271,7 @@ hr {
 }
 
 #chart {
-    margin-top: 5px;
+    margin-top: 0px;
     margin-bottom: 20px;
     border-radius: 10px;
     width: 450px;
@@ -304,7 +304,7 @@ hr {
 
 .chart-h-line div {
     height: 0px;
-    border-bottom: 1px solid white;
+    border-bottom: 1px solid #777;
     width: 100%;
 }
 
@@ -466,7 +466,6 @@ hr {
 .timeline-segment {
     position: absolute;
     height: 62px;
-    padding-inline: 8px;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -481,6 +480,7 @@ hr {
     white-space: nowrap;
     text-align: left;
     margin: 0;
+    margin-left: 4px;
     user-select: none;
 }
 
